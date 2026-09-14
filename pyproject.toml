@@ -6,7 +6,7 @@ readme = "README.md"
 authors = [
     { name = "Vikas Kasaudhan", email = "kasaudhanv036@gmail.com" }
 ]
-requires-python = ">=3.13"
+requires-python = ">=3.12"
 dependencies = [
     "aiosqlite>=0.22.1",
     "fastmcp>=4.0.3",
