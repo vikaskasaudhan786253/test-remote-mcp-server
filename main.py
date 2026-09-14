@@ -1,22 +1,26 @@
 from fastmcp import FastMCP
 import os
-import aiosqlite  # Changed: sqlite3 → aiosqlite
-import tempfile
-# Use temporary directory which should be writable
-TEMP_DIR = tempfile.gettempdir()
-DB_PATH = os.path.join(TEMP_DIR, "expenses.db")
-CATEGORIES_PATH = os.path.join(os.path.dirname(__file__), "categories.json")
+import sqlite3
+import aiosqlite
+from pathlib import Path
+
+# Project directory
+BASE_DIR = Path(__file__).resolve().parent
+
+# Database and categories files
+DB_PATH = BASE_DIR / "expenses.db"
+CATEGORIES_PATH = BASE_DIR / "categories.json"
 
 print(f"Database path: {DB_PATH}")
 
 mcp = FastMCP("ExpenseTracker")
 
-def init_db():  # Keep as sync for initialization
+
+def init_db():
     try:
-        # Use synchronous sqlite3 just for initialization
-        import sqlite3
         with sqlite3.connect(DB_PATH) as c:
             c.execute("PRAGMA journal_mode=WAL")
+
             c.execute("""
                 CREATE TABLE IF NOT EXISTS expenses(
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -27,15 +31,17 @@ def init_db():  # Keep as sync for initialization
                     note TEXT DEFAULT ''
                 )
             """)
-            # Test write access
-            c.execute("INSERT OR IGNORE INTO expenses(date, amount, category) VALUES ('2000-01-01', 0, 'test')")
-            c.execute("DELETE FROM expenses WHERE category = 'test'")
-            print("Database initialized successfully with write access")
+
+            c.commit()
+
+        print(f"Database initialized successfully: {DB_PATH}")
+
     except Exception as e:
         print(f"Database initialization error: {e}")
         raise
 
-# Initialize database synchronously at module load
+
+# Initialize database when the module loads
 init_db()
 
 @mcp.tool()
@@ -129,4 +135,3 @@ def categories():
 # Start the server
 if __name__ == "__main__":
     mcp.run(transport="http", host="0.0.0.0", port=8000)
-    # mcp.run()a
