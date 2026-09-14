@@ -5,6 +5,7 @@ import aiosqlite
 from pathlib import Path
 
 # Project directory
+
 BASE_DIR = Path(__file__).resolve().parent
 
 # Database and categories files
